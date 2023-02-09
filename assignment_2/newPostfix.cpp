@@ -163,7 +163,7 @@ int calc_Postfix(string expression) //Calculate Postfix expression
                 break;
             }
         }
-        expression = s2;
+        expression = s2;   //sets expression to the remaining string
     }
     return stack.top();
 }
