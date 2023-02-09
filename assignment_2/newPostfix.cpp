@@ -5,12 +5,16 @@ Due Date: Feb 2,2023
 Purpose: this program reads an expression in postfix, evaluates the expression
 */
 #include <iostream>
+#include <sstream>
 #include <cstring>
 #include <math.h>
+#include <cctype>
+
  
 using namespace std;
  
-const int MAX = 500;
+const int MAX = 100;
+
 int calc_Postfix(string expression);
  
 //stack implementation
@@ -41,7 +45,7 @@ bool Stack::push(int item)
     else
     {
         myStack[++topCounter] = item;
-        cout << item << endl;
+        //cout << item << endl;
         return true;
     }
 }
@@ -76,18 +80,19 @@ bool Stack::isEmpty()
 {
     return (topCounter < 0);
 }
+
+
 int main()
 {
-    int finalValue; //Where postfix calculation will be stored
-    char choice = 'y';
-    string s; //Where postfix expression will be stored
+    int finalValue;    //Where postfix calculation will be stored
+    char choice = 'y'; 
+    string s;          //Where postfix expression will be stored
  
-    while (choice == 'y' || choice == 'Y')
+    while (choice == 'y') //Continue with loop or exit
     {
         string s;
         cout << "Enter a post fix expression with $ at the end: ";
-        cin >> s;
-        covertString(s);
+        getline(cin,s);
         finalValue = calc_Postfix(s);
         cout << "   Expressions value is " << finalValue << endl;
         cout << "Continue? (y/n)";
@@ -104,52 +109,66 @@ int calc_Postfix(string expression) //Calculate Postfix expression
     //Integers used to calculate postfix expression
     int value1;
     int value2;
+    string s1;
+    string s2;
+    int j = 0;
+    int top = expression.length();
 
-    for (int i = 0; i < expression.length(); i++)   //Loop through string and push to stack based on char
+    while (j < top)
     {
-        switch (expression[i])
+        int num;
+
+        size_t pos = expression.find_first_of(' ');
+        s1 = expression.substr(0, pos);
+        s2 = expression.substr(pos + 1);
+        if (s1[0] >= '0' && s1[0] <= '9')
         {
-        case 'a':
-            stack.push(5);
-            break;
-        case 'b':
-            stack.push(7);
-            break;
-        case 'c':
-            stack.push(2);
-            break;
-        case 'd':
-            stack.push(4);
-            break;
-        case '+':
-            value1 = stack.top();
-            stack.pop();
-            value2 = stack.top();
-            stack.pop();
-            stack.push(value2 + value1);
-            break;
-        case '-':
-            value1 = stack.top();
-            stack.pop();
-            value2 = stack.top();
-            stack.pop();
-            stack.push(value2 - value1);
-            break;
-        case '*':
-            value1 = stack.top();
-            stack.pop();
-            value2 = stack.top();
-            stack.pop();
-            stack.push(value2 * value1);
-            break;
-        case '/':
-            value1 = stack.top();
-            stack.pop();
-            value2 = stack.top();
-            stack.pop();
-            stack.push(value2 / value1);
-            break;
+            num = stoi(s1);
+            stack.push(num);
         }
+        else if (s1[0] >= 'a' && s1[0] <= 'z')
+        {
+            cout << "Enter the value of " << s1 << ": ";
+            cin >> num;
+            stack.push(num);
+        }
+        else
+        {
+            switch (s1[0])
+            {  
+            case '+':
+                value1 = stack.top();
+                stack.pop();
+                value2 = stack.top();
+                stack.pop();
+                stack.push(value2 + value1);
+                break;
+            case '-':
+                value1 = stack.top();
+                stack.pop();
+                value2 = stack.top();
+                stack.pop();
+                stack.push(value2 - value1);
+                break;
+            case '*':
+                value1 = stack.top();
+                stack.pop();
+                value2 = stack.top();
+                stack.pop();
+                stack.push(value2 * value1);
+                break;
+            case '/':
+                value1 = stack.top();
+                stack.pop();
+                value2 = stack.top();
+                stack.pop();
+                stack.push(value2 / value1);
+                break;
+            case '$':
+                return stack.top();
+            }
+        }
+        expression = s2;
+        ++j;
     }
-    return stack.top();
 }
