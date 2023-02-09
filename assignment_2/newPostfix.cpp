@@ -1,9 +1,9 @@
-/*
-Group Names: Jay Vang, Jesse Shaihor, Cristian Salinas
-Homework 1
-Due Date: Feb 2,2023
-Purpose: this program reads an expression in postfix, evaluates the expression
-*/
+// ================================================================================================
+// Group Names: Jay Vang, Jesse Shaihor, Cristian Salinas
+// Homework 2
+// Due Date: Feb 9,2023
+// Purpose: this program reads an expression in postfix, evaluates the expression
+// ================================================================================================
 #include <iostream>
 #include <sstream>
 #include <cstring>
@@ -78,7 +78,6 @@ bool Stack::isEmpty()
 {
     return (topCounter < 0);
 }
-
 
 
 int main()
