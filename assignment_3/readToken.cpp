@@ -36,10 +36,10 @@ int main()
     string tempToken;
 
     //setting the format for the outputs
-    cout << left << setw(10) << "Token";
-    cout << left << setw(10) << "Number";
-    cout << left << setw(10) << "Idenifier";
-    cout << left << setw(10) << "Reserved Word\n";
+    cout << setw(15) << "Token";
+    cout << setw(15) << "Number";
+    cout << setw(15) << "Idenifier";
+    cout << setw(15) << "Reserved Word\n";
 
     //open txt file to read from
     tokenFile.open("token.txt");
@@ -66,7 +66,7 @@ int main()
 
 void determineToken(string tokenRead)
 {
-    cout << left << setw(10) << tokenRead;
+    cout << setw(15) << tokenRead;
 
     //check each function for the token read from the text file
     tokenDigit(tokenRead);
@@ -89,17 +89,17 @@ void tokenDigit(string token)
     {
         //if a non-digit is ever read check will become false
         check = isdigit(token[i]);
+        if (check == 0)
+        {
+            cout << setw(15) << "no";
+            break;
+        }
         ++i;
     }
 
     if (check)
     {
-        cout << left << setw(10) << "yes";
-    }
-    else
-    {
-        cout << left << setw(10) << "no";
-
+        cout << setw(15) << "yes";
     }
 }
 
@@ -113,6 +113,8 @@ void tokenId(string token)
 {
     int i = 0;
     int check = 1;
+    int checkReserve = 0;
+
 
     if (isalpha(token[0]) || token[0] == '_')
     {
@@ -120,7 +122,7 @@ void tokenId(string token)
         while (i < token.length())
         {
             //if an digit,underscore, or alphabet is not read it is not an identifier
-            if(isdigit(token[i]) || isalpha(token[i]) || token[i] == '_')
+            if((isdigit(token[i]) || isalpha(token[i])) || (token[i] == '_'))
             {
                 check = 1;
             }
@@ -132,7 +134,7 @@ void tokenId(string token)
             //if the check ever read false then we output not an identifier and exit the loop
             if (check == 0)
             {
-                cout << left << setw(10) << "no";
+                cout << setw(15) << "no";
                 break;
             }
             i++;
@@ -141,12 +143,25 @@ void tokenId(string token)
     }
     else
     {
-        cout << left << setw(10) << "no";
+        cout << setw(15) << "no";
+        check = 0;
     }
 
+    //compare token to the reserved words in a loop
+    for(int j = 0; j < 5; j++)
+        {
+        //if token ever matches a reserved word check becomes false and report no
+        if (token == reserved[j])
+        {
+            check = 0;
+            cout << setw(15) << "no";  
+        }
+    }
+
+    //if it is not a reserve word and satisfies Id conditions report yes
     if (check)
     {
-        cout << left << setw(10) << "yes";
+        cout << setw(15) << "yes";
     }
 }
 
@@ -168,18 +183,17 @@ void tokenReserved(string token)
         {
             check = 0;
         }
-        //if check is ever false we will write it is a reserved word and exit the loop
-        if (check == 0)
-        {
-            cout << left << setw(10) << "yes\n";
-            break;
-        }
     }
 
     //if the loop has finished and check is true we will write it is not a reserved word
     if (check)
     {
-        cout << left << setw(10) << "no\n";
+        cout << setw(15) << "no\n";
+    }
+    //if check is ever false we will write it is a reserved word and exit the loop
+    else
+    {
+        cout << setw(15) << "yes\n";
     }
 }
 
