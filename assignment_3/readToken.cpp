@@ -1,5 +1,5 @@
 // ================================================================================================
-// Group Names: Jay Vang, Jesse Shaihor
+// Group Names: Jay Vang, Jesse Shaihor, Cristian Salinas
 // Homework 2
 // Due Date: Feb 16,2023
 // Purpose: This program reads a list of tokens from a text file and will determine whether it is 
