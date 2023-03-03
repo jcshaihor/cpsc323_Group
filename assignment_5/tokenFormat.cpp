@@ -14,6 +14,8 @@ using namespace std;
 
 //function prototypes
 int calcToken(string token);
+void writeText();
+
 
 
 // === main =======================================================================================
@@ -64,11 +66,15 @@ int main()
                 break;
         }
     }
+
     //close the files we used
     tokenFile.close();
     writeToken.close();
-    return 0;
 
+    //function to output the txt file contents
+    writeText();
+
+    return 0;
 }
 
 // === calcToken ==================================================================================
@@ -108,4 +114,39 @@ int calcToken(string token)
     }
 
     return answer;
+}
+
+// === writeText ==================================================================================
+// Purpose: this function will determine what will do with the given string.
+// ================================================================================================
+
+void writeText()
+{
+    string temp;
+    fstream file1;
+    fstream file2;
+
+    //openning txt file again to start at the top
+    file1.open("h5.txt");
+    file2.open("newh5.txt");
+
+    //write out its contents of h5.txt
+    cout << "h5.txt\n";
+    while (!file1.eof())
+    {
+        getline(file1, temp);
+        cout << temp << endl;
+    }
+
+    //write out its contents of newh5.txt
+    cout << "\nnewh5.txt\n";
+    while (!file2.eof())
+    {
+        getline(file2, temp);
+        cout << temp << endl;
+    }
+
+    //close the files we used
+    file1.close();
+    file2.close();
 }
