@@ -117,7 +117,7 @@ int calcToken(string token)
 }
 
 // === writeText ==================================================================================
-// Purpose: this function will determine what will do with the given string.
+// Purpose: this function will print out the contents of the 2 text files h5 and newh5
 // ================================================================================================
 
 void writeText()
