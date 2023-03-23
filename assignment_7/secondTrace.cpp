@@ -91,11 +91,17 @@ void readCFG(string expression)
 
             state = stackTrace.back();
             stackTrace.pop_back();
-        }       
+        }   
 
         //a switch to decide what we will translate
         switch (state)
         {
+            case 'S':
+                temp = translation(state, cfgChange);
+                break;
+            case 'W':
+                temp = translation(state, cfgChange);
+                break;
             case 'E':
                 temp = translation(state, cfgChange);
                 break;
@@ -139,13 +145,91 @@ string translation(char token, char match)
 {
     string change;      //the translation for the trace to perform
 
+    //enter this block if 'S' is the token
+    if (token == 'S')
+    {
+        //the possible translations for 'S'
+        switch (match)
+        {
+            case 'a':
+                change = "Wa";
+                break;
+            case '+':
+                change = "0";
+                break;
+            case '-':
+                change = "0";
+                break;
+            case '*':  
+                change = "0";
+                break;
+            case '/':  
+                change = "0";
+                break;
+            case '(':  
+                change = "0";
+                break;
+            case ')':  
+                change = "0";
+                break;
+            case '$':  
+                change = "0";
+                break;
+            case '=':  
+                change = "0";
+                break;                
+            default:
+                change = "0";
+                break;
+        }
+    } 
+
+    //enter this block if 'W' is the token
+    if (token == 'W')
+    {
+        //the possible translations for 'W'
+        switch (match)
+        {
+            case 'a':
+                change = "0";
+                break;
+            case '+':
+                change = "0";
+                break;
+            case '-':
+                change = "0";
+                break;
+            case '*':  
+                change = "0";
+                break;
+            case '/':  
+                change = "0";
+                break;
+            case '(':  
+                change = "0";
+                break;
+            case ')':  
+                change = "0";
+                break;
+            case '$':  
+                change = "0";
+                break;
+            case '=':  
+                change = "E=";
+                break;
+            default:
+                change = "0";
+                break;
+        }
+    } 
+
     //enter this block if 'E' is the token
     if (token == 'E')
     {
         //the possible translations for 'E'
         switch (match)
         {
-            case 'i':
+            case 'a':
                 change = "QT";
                 break;
             case '+':
@@ -169,6 +253,9 @@ string translation(char token, char match)
             case '$':  
                 change = "0";
                 break;
+            case '=':  
+                change = "0";
+                break;                      
             default:
                 change = "0";
                 break;
@@ -181,7 +268,7 @@ string translation(char token, char match)
         //the possible translations for 'Q'
         switch (match)
         {
-            case 'i':
+            case 'a':
                 change = "0";
                 break;
             case '+':
@@ -205,6 +292,9 @@ string translation(char token, char match)
             case '$':  
                 change = "1";
                 break;
+            case '=':  
+                change = "0";
+                break;                      
             default:
                 change = "0";
                 break;
@@ -217,7 +307,7 @@ string translation(char token, char match)
         //the possible translations for 'T'
         switch (match)
         {
-            case 'i':
+            case 'a':
                 change = "RF";
                 break;
             case '+':
@@ -241,6 +331,9 @@ string translation(char token, char match)
             case '$':  
                 change = "0";
                 break;
+            case '=':  
+                change = "0";
+                break;      
             default:
                 change = "0";
                 break;
@@ -253,7 +346,7 @@ string translation(char token, char match)
         //the possible translations for 'R'
         switch (match)
         {
-            case 'i':
+            case 'a':
                 change = "0";
                 break;
             case '+':
@@ -277,6 +370,9 @@ string translation(char token, char match)
             case '$':  
                 change = "1";
                 break;
+            case '=':  
+                change = "0";
+                break;      
             default:
                 change = "0";
                 break;
@@ -289,8 +385,8 @@ string translation(char token, char match)
         //the possible translations for 'F'
         switch (match)
         {
-            case 'i':
-                change = "i";
+            case 'a':
+                change = "a";
                 break;
             case '+':
                 change = "0";
@@ -313,6 +409,9 @@ string translation(char token, char match)
             case '$':  
                 change = "0";
                 break;
+            case '=':  
+                change = "0";
+                break;      
             default:
                 change = "0";
                 break;
