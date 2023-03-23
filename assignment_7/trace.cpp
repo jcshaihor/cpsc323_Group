@@ -89,8 +89,11 @@ void readCFG(string expression)
             //set the next item needed to be match
             cfgChange = expression[counter];
 
-            state = stackTrace.back();
-            stackTrace.pop_back();
+            if(!stackTrace.empty())
+            {
+                state = stackTrace.back();
+                stackTrace.pop_back();
+            }
         }       
 
         //a switch to decide what we will translate
