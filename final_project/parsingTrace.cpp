@@ -7,9 +7,11 @@
 // ================================================================================================
 
 #include <iostream>
+#include <fstream>
 #include <stack>
 #include <map>
 #include <string>
+#include <vector>
 
 using namespace std;
 // Define the grammar productions as strings
@@ -61,276 +63,314 @@ const string LProductionS = "s";
 const string Lambda = "lambda";
 
 // Define a table to represent the predictive parsing table
-map<pair<char, string>, string> table = 
+map<pair<string, string>, string> table = 
 {
-    {{'P', "program"}, PProduction},
-    {{'I', "p"}, IProduction},
-    {{'I', "q"}, IProduction},
-    {{'I', "r"}, IProduction},
-    {{'I', "s"}, IProduction},
-    {{'X', "0"}, XProduction},
-    {{'X', "1"}, XProduction},
-    {{'X', "2"}, XProduction},
-    {{'X', "3"}, XProduction},
-    {{'X', "4"}, XProduction},
-    {{'X', "5"}, XProduction},
-    {{'X', "6"}, XProduction},
-    {{'X', "7"}, XProduction},
-    {{'X', "8"}, XProduction},
-    {{'X', "9"}, XProduction},
-    {{'M', "0"}, MProductionDigit},
-    {{'M', "1"}, MProductionDigit},
-    {{'M', "2"}, MProductionDigit},
-    {{'M', "3"}, MProductionDigit},
-    {{'M', "4"}, MProductionDigit},
-    {{'M', "5"}, MProductionDigit},
-    {{'M', "6"}, MProductionDigit},
-    {{'M', "7"}, MProductionDigit},
-    {{'M', "8"}, MProductionDigit},
-    {{'M', "9"}, MProductionDigit},
-    {{'M', "p"}, MProductionLetter},
-    {{'M', "q"}, MProductionLetter},
-    {{'M', "r"}, MProductionLetter},
-    {{'M', "s"}, MProductionLetter},
-    {{'B', "p"}, BProduction},
-    {{'B', "q"}, BProduction},
-    {{'B', "r"}, BProduction},
-    {{'B', "s"}, BProduction},
-    {{'C', "p"}, CProduction},
-    {{'C', "q"}, CProduction},
-    {{'C', "r"}, CProduction},
-    {{'C', "s"}, CProduction},
-    {{'J', ","}, JProduction},
-    {{'J', ":"}, Lambda},
-    {{'Z', "integer"}, ZProduction},
-    {{'G', "p"}, GProduction},
-    {{'G', "q"}, GProduction},
-    {{'G', "r"}, GProduction},
-    {{'G', "s"}, GProduction},
-    {{'G', "display"}, GProduction},
-    {{'K', "p"}, KProduction},
-    {{'K', "q"}, KProduction},
-    {{'K', "r"}, KProduction},
-    {{'K', "s"}, KProduction},
-    {{'K', "display"}, KProduction},
-    {{'K', "end."}, Lambda},
-    {{'S', "p"}, SProductionAssign},
-    {{'S', "q"}, SProductionAssign},
-    {{'S', "r"}, SProductionAssign},
-    {{'S', "s"}, SProductionAssign},
-    {{'S', "display"}, SProductionWrite},
-    {{'W', "display"}, WProduction},
-    {{'O', "("}, OProduction},
-    {{'H', "p"}, HProductionInteger},
-    {{'H', "q"}, HProductionInteger},
-    {{'H', "r"}, HProductionInteger},
-    {{'H', "s"}, HProductionInteger},
-    {{'H', "\'value=\',"}, HProductionValue},
-    {{'A', "p"}, AProduction},
-    {{'A', "q"}, AProduction},
-    {{'A', "r"}, AProduction},
-    {{'A', "s"}, AProduction},
-    {{'E', "0"}, EProduction},
-    {{'E', "1"}, EProduction},
-    {{'E', "2"}, EProduction},
-    {{'E', "3"}, EProduction},
-    {{'E', "4"}, EProduction},
-    {{'E', "5"}, EProduction},
-    {{'E', "6"}, EProduction},
-    {{'E', "7"}, EProduction},
-    {{'E', "8"}, EProduction},
-    {{'E', "9"}, EProduction},
-    {{'E', "p"}, EProduction},
-    {{'E', "q"}, EProduction},
-    {{'E', "r"}, EProduction},
-    {{'E', "s"}, EProduction},
-    {{'E', "("}, EProduction},
-    {{'E', "+"}, EProduction},
-    {{'E', "-"}, EProduction},
-    {{'Q', ")"}, Lambda},
-    {{'Q', "+"}, QProductionPlus},
-    {{'Q', "-"}, QProductionMinus},
-    {{'Q', ";"}, Lambda,}
-    {{'T', "0"}, TProduction},
-    {{'T', "1"}, TProduction},
-    {{'T', "2"}, TProduction},
-    {{'T', "3"}, TProduction},
-    {{'T', "4"}, TProduction},
-    {{'T', "5"}, TProduction},
-    {{'T', "6"}, TProduction},
-    {{'T', "7"}, TProduction},
-    {{'T', "8"}, TProduction},
-    {{'T', "9"}, TProduction},
-    {{'T', "p"}, TProduction},
-    {{'T', "q"}, TProduction},
-    {{'T', "r"}, TProduction},
-    {{'T', "s"}, TProduction},
-    {{'T', "("}, TProduction},
-    {{'T', "+"}, TProduction},
-    {{'T', "-"}, TProduction},
-    {{'R', ")"}, Lambda},
-    {{'R', "*"}, RProductionMulti},
-    {{'R', "/"}, RProductionDiv},
-    {{'R', ";"}, Lambda},
-    {{'F', "0"}, FProductionNum},
-    {{'F', "1"}, FProductionNum},
-    {{'F', "2"}, FProductionNum},
-    {{'F', "3"}, FProductionNum},
-    {{'F', "4"}, FProductionNum},
-    {{'F', "5"}, FProductionNum},
-    {{'F', "6"}, FProductionNum},
-    {{'F', "7"}, FProductionNum},
-    {{'F', "8"}, FProductionNum},
-    {{'F', "9"}, FProductionNum},
-    {{'F', "p"}, FProductionInt},
-    {{'F', "q"}, FProductionInt},
-    {{'F', "r"}, FProductionInt},
-    {{'F', "s"}, FProductionInt},
-    {{'F', "("}, FProductionE},
-    {{'F', "+"}, FProductionNum},
-    {{'F', "-"}, FProductionNum},
-    {{'N', "0"}, NProduction},
-    {{'N', "1"}, NProduction},
-    {{'N', "2"}, NProduction},
-    {{'N', "3"}, NProduction},
-    {{'N', "4"}, NProduction},
-    {{'N', "5"}, NProduction},
-    {{'N', "6"}, NProduction},
-    {{'N', "7"}, NProduction},
-    {{'N', "8"}, NProduction},
-    {{'N', "9"}, NProduction},
-    {{'N', "+"}, NProduction},
-    {{'N', "-"}, NProduction},
-    {{'Y', "0"}, YProduction},
-    {{'Y', "1"}, YProduction},
-    {{'Y', "2"}, YProduction},
-    {{'Y', "3"}, YProduction},
-    {{'Y', "4"}, YProduction},
-    {{'Y', "5"}, YProduction},
-    {{'Y', "6"}, YProduction},
-    {{'Y', "7"}, YProduction},
-    {{'Y', "8"}, YProduction},
-    {{'Y', "9"}, YProduction},
-    {{'Y', ")"}, Lambda},
-    {{'Y', "*"}, Lambda},
-    {{'Y', "/"}, Lambda},
-    {{'Y', "+"}, Lambda},
-    {{'Y', "-"}, Lambda},
-    {{'Y', ";"}, Lambda},
-    {{'N', "0"}, Lambda},
-    {{'N', "1"}, Lambda},
-    {{'N', "2"}, Lambda},
-    {{'N', "3"}, Lambda},
-    {{'N', "4"}, Lambda},
-    {{'N', "5"}, Lambda},
-    {{'N', "6"}, Lambda},
-    {{'N', "7"}, Lambda},
-    {{'N', "8"}, Lambda},
-    {{'N', "9"}, Lambda},
-    {{'N', "+"}, VProductionPos},
-    {{'N', "-"}, VProductionNeg},
-    {{'D', "0"}, DProductionOne},
-    {{'D', "1"}, DProductionTwo},
-    {{'D', "2"}, DProductionThree},
-    {{'D', "3"}, DProductionFour},
-    {{'D', "4"}, DProductionFive},
-    {{'D', "6"}, DProductionSix},
-    {{'D', "7"}, DProductionSeven},
-    {{'D', "8"}, DProductionEight},
-    {{'D', "9"}, DProductionNine},
-    {{'L', "p"}, LProductionP},
-    {{'L', "q"}, LProductionQ},
-    {{'L', "r"}, LProductionR},
-    {{'L', "s"}, LProductionS}
+    {{"P", "program"}, PProduction},
+    {{"I", "p"}, IProduction},
+    {{"I", "q"}, IProduction},
+    {{"I", "r"}, IProduction},
+    {{"I", "s"}, IProduction},
+    {{"X", "0"}, XProduction},
+    {{"X", "1"}, XProduction},
+    {{"X", "2"}, XProduction},
+    {{"X", "3"}, XProduction},
+    {{"X", "4"}, XProduction},
+    {{"X", "5"}, XProduction},
+    {{"X", "6"}, XProduction},
+    {{"X", "7"}, XProduction},
+    {{"X", "8"}, XProduction},
+    {{"X", "9"}, XProduction},
+    {{"M", "0"}, MProductionDigit},
+    {{"M", "1"}, MProductionDigit},
+    {{"M", "2"}, MProductionDigit},
+    {{"M", "3"}, MProductionDigit},
+    {{"M", "4"}, MProductionDigit},
+    {{"M", "5"}, MProductionDigit},
+    {{"M", "6"}, MProductionDigit},
+    {{"M", "7"}, MProductionDigit},
+    {{"M", "8"}, MProductionDigit},
+    {{"M", "9"}, MProductionDigit},
+    {{"M", "p"}, MProductionLetter},
+    {{"M", "q"}, MProductionLetter},
+    {{"M", "r"}, MProductionLetter},
+    {{"M", "s"}, MProductionLetter},
+    {{"B", "p"}, BProduction},
+    {{"B", "q"}, BProduction},
+    {{"B", "r"}, BProduction},
+    {{"B", "s"}, BProduction},
+    {{"C", "p"}, CProduction},
+    {{"C", "q"}, CProduction},
+    {{"C", "r"}, CProduction},
+    {{"C", "s"}, CProduction},
+    {{"J", ","}, JProduction},
+    {{"J", ":"}, Lambda},
+    {{"Z", "integer"}, ZProduction},
+    {{"G", "p"}, GProduction},
+    {{"G", "q"}, GProduction},
+    {{"G", "r"}, GProduction},
+    {{"G", "s"}, GProduction},
+    {{"G", "display"}, GProduction},
+    {{"K", "p"}, KProduction},
+    {{"K", "q"}, KProduction},
+    {{"K", "r"}, KProduction},
+    {{"K", "s"}, KProduction},
+    {{"K", "display"}, KProduction},
+    {{"K", "end."}, Lambda},
+    {{"S", "p"}, SProductionAssign},
+    {{"S", "q"}, SProductionAssign},
+    {{"S", "r"}, SProductionAssign},
+    {{"S", "s"}, SProductionAssign},
+    {{"S", "display"}, SProductionWrite},
+    {{"W", "display"}, WProduction},
+    {{"O", "("}, OProduction},
+    {{"H", "p"}, HProductionInteger},
+    {{"H", "q"}, HProductionInteger},
+    {{"H", "r"}, HProductionInteger},
+    {{"H", "s"}, HProductionInteger},
+    {{"H", "\"value=\","}, HProductionValue},
+    {{"A", "p"}, AProduction},
+    {{"A", "q"}, AProduction},
+    {{"A", "r"}, AProduction},
+    {{"A", "s"}, AProduction},
+    {{"E", "0"}, EProduction},
+    {{"E", "1"}, EProduction},
+    {{"E", "2"}, EProduction},
+    {{"E", "3"}, EProduction},
+    {{"E", "4"}, EProduction},
+    {{"E", "5"}, EProduction},
+    {{"E", "6"}, EProduction},
+    {{"E", "7"}, EProduction},
+    {{"E", "8"}, EProduction},
+    {{"E", "9"}, EProduction},
+    {{"E", "p"}, EProduction},
+    {{"E", "q"}, EProduction},
+    {{"E", "r"}, EProduction},
+    {{"E", "s"}, EProduction},
+    {{"E", "("}, EProduction},
+    {{"E", "+"}, EProduction},
+    {{"E", "-"}, EProduction},
+    {{"Q", ")"}, Lambda},
+    {{"Q", "+"}, QProductionPlus},
+    {{"Q", "-"}, QProductionMinus},
+    {{"Q", ";"}, Lambda},
+    {{"T", "0"}, TProduction},
+    {{"T", "1"}, TProduction},
+    {{"T", "2"}, TProduction},
+    {{"T", "3"}, TProduction},
+    {{"T", "4"}, TProduction},
+    {{"T", "5"}, TProduction},
+    {{"T", "6"}, TProduction},
+    {{"T", "7"}, TProduction},
+    {{"T", "8"}, TProduction},
+    {{"T", "9"}, TProduction},
+    {{"T", "p"}, TProduction},
+    {{"T", "q"}, TProduction},
+    {{"T", "r"}, TProduction},
+    {{"T", "s"}, TProduction},
+    {{"T", "("}, TProduction},
+    {{"T", "+"}, TProduction},
+    {{"T", "-"}, TProduction},
+    {{"R", ")"}, Lambda},
+    {{"R", "*"}, RProductionMulti},
+    {{"R", "/"}, RProductionDiv},
+    {{"R", ";"}, Lambda},
+    {{"F", "0"}, FProductionNum},
+    {{"F", "1"}, FProductionNum},
+    {{"F", "2"}, FProductionNum},
+    {{"F", "3"}, FProductionNum},
+    {{"F", "4"}, FProductionNum},
+    {{"F", "5"}, FProductionNum},
+    {{"F", "6"}, FProductionNum},
+    {{"F", "7"}, FProductionNum},
+    {{"F", "8"}, FProductionNum},
+    {{"F", "9"}, FProductionNum},
+    {{"F", "p"}, FProductionInt},
+    {{"F", "q"}, FProductionInt},
+    {{"F", "r"}, FProductionInt},
+    {{"F", "s"}, FProductionInt},
+    {{"F", "("}, FProductionE},
+    {{"F", "+"}, FProductionNum},
+    {{"F", "-"}, FProductionNum},
+    {{"N", "0"}, NProduction},
+    {{"N", "1"}, NProduction},
+    {{"N", "2"}, NProduction},
+    {{"N", "3"}, NProduction},
+    {{"N", "4"}, NProduction},
+    {{"N", "5"}, NProduction},
+    {{"N", "6"}, NProduction},
+    {{"N", "7"}, NProduction},
+    {{"N", "8"}, NProduction},
+    {{"N", "9"}, NProduction},
+    {{"N", "+"}, NProduction},
+    {{"N", "-"}, NProduction},
+    {{"Y", "0"}, YProduction},
+    {{"Y", "1"}, YProduction},
+    {{"Y", "2"}, YProduction},
+    {{"Y", "3"}, YProduction},
+    {{"Y", "4"}, YProduction},
+    {{"Y", "5"}, YProduction},
+    {{"Y", "6"}, YProduction},
+    {{"Y", "7"}, YProduction},
+    {{"Y", "8"}, YProduction},
+    {{"Y", "9"}, YProduction},
+    {{"Y", ")"}, Lambda},
+    {{"Y", "*"}, Lambda},
+    {{"Y", "/"}, Lambda},
+    {{"Y", "+"}, Lambda},
+    {{"Y", "-"}, Lambda},
+    {{"Y", ";"}, Lambda},
+    {{"N", "0"}, Lambda},
+    {{"N", "1"}, Lambda},
+    {{"N", "2"}, Lambda},
+    {{"N", "3"}, Lambda},
+    {{"N", "4"}, Lambda},
+    {{"N", "5"}, Lambda},
+    {{"N", "6"}, Lambda},
+    {{"N", "7"}, Lambda},
+    {{"N", "8"}, Lambda},
+    {{"N", "9"}, Lambda},
+    {{"N", "+"}, VProductionPos},
+    {{"N", "-"}, VProductionNeg},
+    {{"D", "0"}, DProductionOne},
+    {{"D", "1"}, DProductionTwo},
+    {{"D", "2"}, DProductionThree},
+    {{"D", "3"}, DProductionFour},
+    {{"D", "4"}, DProductionFive},
+    {{"D", "6"}, DProductionSix},
+    {{"D", "7"}, DProductionSeven},
+    {{"D", "8"}, DProductionEight},
+    {{"D", "9"}, DProductionNine},
+    {{"L", "p"}, LProductionP},
+    {{"L", "q"}, LProductionQ},
+    {{"L", "r"}, LProductionR},
+    {{"L", "s"}, LProductionS}
 };
 
 // Function to print the contents of a stack backward
-void printStack(stack<char> s) 
+void printStack(stack<string> s, ofstream& stackFile) 
 {
     if (s.empty()) 
         return;
         
-    char temp = s.top();
+    string temp = s.top();
     s.pop();
-    printStack(s);
-    cout << temp;
+    printStack(s,stackFile);
+    stackFile << temp;
 }
+
 //Function to trace input strings
-bool traceInput(string input) 
+bool traceInput(ofstream& stackFile, ifstream& tokenFile) 
 {
+    string input;
     bool toRead = true;
-    stack<char> aStack;
-    aStack.push('$');
-    aStack.push('P');
-    cout << "\nPush: $, Push: P" << endl;
+    stack<string> aStack;
+    aStack.push("$");
+    aStack.push("P");
+    stackFile << "\nPush: $, Push: P" << endl;
     
-    size_t i = 0;
     // Loop until the stack is empty or the input string has been fully read
-    while (!aStack.empty() && i < input.length()) 
+    while (!aStack.empty() && !tokenFile.eof()) 
     {
-        cout << "Stack: ";
-        printStack(aStack);
-        
-        char top = aStack.top();
-        cout << "\n\nPop: " << top << endl;
+        tokenFile >> input;
+        stackFile << "Stack: ";
+        printStack(aStack, stackFile);
+
+        string top = aStack.top();
+        stackFile << "\n\nPop: " << top << endl;
         aStack.pop();
         
-        char token = input[i];
+        string token = input;
         //Print Read: token and Input string: string
         if (toRead) 
         {
-            cout << "Read: " << token << endl;
+            stackFile << "Read: " << token << endl;
             toRead = false;
-            cout << "Input string : " << input.substr(i + 1, input.length() - i) << endl;
+            stackFile << "Input string : " << input << endl;
         }
         //If a string has matched, move index i to next char, print message matched
         if (top == token) 
         {
-            cout << "Match with the input string: " << token << endl;
+            stackFile << "Match with the input string: " << token << endl;
             toRead = true;
-            ++i;
         } 
         // Find the production for the current non-terminal and input symbol in the parsing table.
         else if (table.find({top, token}) != table.end()) 
         {
 
             string prod = table[{top, token}];
-            cout << "Go to [" << top << ", " << token << "] = " << prod << endl;
+            stackFile << "Go to [" << top << ", " << token << "] = " << prod << endl;
             // If the production is not a lambda (empty) production, push its symbols onto the stack in reverse order.
-            if (prod != QLambda && prod != RLambda) 
+            if (prod != Lambda) 
             {
-                for (int j = prod.length() - 1; j >= 0; j--) 
+                string prodBreak;
+                stack<string> prodStack;
+                int count = 0;
+                int index;
+                for (int i = 0; i < prod.length(); i++)
                 {
-                    aStack.push(prod[j]);
-                    if(j == 0)
-                        cout << "Push: " << prod[j] << endl;
-                    else
-                        cout << "Push: " << prod[j] << ", ";
+                    if (prod[i] == ' ')
+                    {
+                        count++;
+                    }
                 }
-            }
+                count = count + 1;
+                stackFile << count << endl;
+
+                for (int j = 0; count > j; j++) 
+                {
+                    if (prod.find(' ') != std::string::npos)
+                    {
+                        index = prod.find(' ');
+                        prodBreak = prod.substr(0, index);
+                        prodStack.push(prodBreak);
+                        prodStack.push(" ");
+                        prodBreak.erase();
+                        prod = prod.substr(index, prod.length()-1);
+                    }
+                    else
+                    {
+                        prodStack.push(prod);
+                    }
+                }
+
+                aStack.push(prodStack.top());
+                prodStack.pop();
+                if(count == 0)
+                    stackFile << "Push: " << prodStack.top() << endl;
+                else
+                    stackFile << "Push: " << prodStack.top() << ", ";
+                }
         }
         //If the go to a blank, then rejected
         else 
         {
-            cout << "\n" << input << " is rejected." << endl;
+            stackFile << "\n" << input << " is rejected." << endl;
             return false;
         }
             
     }
     
-    cout << "\n" << input << " is accepted." << endl;
+    stackFile << "\n" << input << " is accepted." << endl;
     return true;
 }
 
 int main() 
 {
-    string input = "";
-    cout << "input a string with end symbol $: " ;
-    cin >> input;
-    
-    traceInput(input);
+    ifstream tokenFile;
+    ofstream stackFile;
 
+    // openning our targeted txt file
+    tokenFile.open("finalp2.txt");
+    stackFile.open("stack.txt");
 
+    // loop for as long as we have not reached the end of file
+    while (!tokenFile.eof())
+    {
+    traceInput(stackFile,tokenFile);
+    }
+
+    tokenFile.close();
+    stackFile.close();
     return 0;
     
 }
