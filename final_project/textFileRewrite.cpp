@@ -9,6 +9,7 @@
 #include <iostream>
 #include <fstream>
 #include <cstring>
+#include <string>
 
 using namespace std;
 
@@ -21,7 +22,7 @@ const string RESERVED5 = "integer";
 const string RESERVED6 = "display";
 
 // function prototypes
-void calcToken(string token);
+void calcToken(string token, ofstream& writeToken);
 void writeText();
 
 
@@ -33,36 +34,49 @@ void writeText();
 int main()
 {
     ifstream tokenFile;
+    ofstream writeToken;
     string tempToken;
-    bool comment = false;
+    bool commentBool = false;
+    int commentIndex = 0;
 
     // openning our targeted txt file
     tokenFile.open("finalp1.txt");
+    writeToken.open("finalp2.txt");
 
     // loop for as long as we have not reached the end of file
     while (!tokenFile.eof())
     {
         // copy the string to a variable
-        tokenFile >> tempToken;
+        getline(tokenFile,tempToken);
+        commentBool = false;
 
-        cout << tempToken << endl;
-
-        // see if we are reading a comment
+        // see if we are reading a comment in the string
         if (tempToken.find("//") != std::string::npos) 
         {
-            comment = (!comment);
+            // if the comment is at the start or back then skip the line
+            if ((tempToken[0] == '/') || ((tempToken[tempToken.size() - 2]) == '/'))
+            {
+                commentBool = true;
+            }
+            // a comment within the string
+            else
+            {
+                commentIndex = tempToken.find("//");
+                tempToken = tempToken.erase(commentIndex);
+            }
         }
 
-        // call the function to write if it is not a comment
-        if (!comment)
+        // call the function to write if it is not a comment line
+        if (!commentBool)
         {
-            calcToken(tempToken);     //call calcToken to determine the next step
+            calcToken(tempToken,writeToken);     //call calcToken to determine the next step
         }
 
     }
 
     //close the files we used
     tokenFile.close();
+    writeToken.close();
 
     //function to output the txt file contents
     //writeText();
@@ -74,85 +88,86 @@ int main()
 // Purpose: this function will determine what will do with the given string.
 // ================================================================================================
 
-void calcToken(string token)
+void calcToken(string token, ofstream& writeToken)
 {
-    ofstream writeToken;
+    char reserveArr[10];
+    bool quoteMark = true;
+    unsigned char c;
+    unsigned char prev;
+    
+    // loop through the string to break it into parts and write it to our txt file
+    for(int i = 0; i < token.size(); ++i)
+    {
 
-    //openning our targeted txt file
-    writeToken.open("finalp2.txt");
-
-    if (token == RESERVED1 || token == RESERVED5 || token == RESERVED6)
-    {
-        writeToken << token;
-    }
-    else if (token == RESERVED2 || token == RESERVED3 || token == RESERVED4)
-    {
-        writeToken << token << endl;
-    }  
-    else 
-    {
-        // loop through the string to break it into parts and write it to our txt file
-        for(int i = 0; i < token.size(); ++i)
+        if (i == 0)
         {
-            // when we read any of the syntax we will write a space and itself followed by whitespace
-            if (token[i] == ',' || token[i] == ':' || token[i] == '='
-                                || token[i] == '(' || token[i] == ')'
-                                || token[i] == '*' || token[i] == '+'
-                                || token[i] == '-')
-            {
-                writeToken << ' ' << token[i] << ' ';
-            }
-            else if (token[i] == ';')
-            {
-                writeToken << ' ' << token[i] << endl;
-            }
-            else 
-            {
-                writeToken << token[i];
-            }
-
+            c = token[i];
         }
+        else
+        {
+            if (c != ' ' || c == '\t' || c == '\n' ||
+                            c == '\r' || c == '\f' || c == '\v')
+            {
+                prev = c;
+            }
+                c = token[i];
+        }
+
+            // when we read any of the syntax
+            if ((c == ',' || c == ':' || c == '=' || c == '(' || c == ')'
+                          || c == '*' || c == '+' || c == '-') && quoteMark)
+            {
+                if (prev == ',' || prev == ':' || prev == '=' || prev == '(' || prev == ')'
+                                || prev == '*' || prev == '+' || prev == '-')
+                {
+                    writeToken << c << ' ';
+                }
+                else
+                {
+                    writeToken << ' ' << c << ' ';
+                }
+            }
+            else if (c == ';')
+            {
+                if (prev == ',' || prev == ':' || prev == '=' || prev == '(' || prev == ')'
+                                || prev == '*' || prev == '+' || prev == '-')
+                {
+                    writeToken << c << endl;
+                }
+                else
+                {
+                    writeToken << ' ' << c << endl;
+                }
+        }
+        else if (c == ' ' || c == '\t' || c == '\n' ||
+                             c == '\r' || c == '\f' || c == '\v')
+        { 
+            // do nothing
+        }
+        else if (c == '\"')
+        {
+            writeToken << c;
+            quoteMark = (!quoteMark);
+        }
+        else 
+        {
+            if (c == 'm')
+            {
+                writeToken << c << ' ';
+            }
+            else if (c == 'r' && prev =='a')
+            {
+                writeToken << c << endl;
+            }
+            else if (c == 'n' && token[i-3] == 'e')
+            {
+                writeToken << c << endl;
+            }
+            else
+            {
+                writeToken << c;
+            }
+        }
+  
     }
-
-    writeToken << ' ';
-
-
-    // close the txt files we used
-    writeToken.close();
-
 }
-
-// === writeText ==================================================================================
-// Purpose: this function will print out the contents of the 2 text files h5 and newh5
-// ================================================================================================
-/*
-void writeText()
-{
-    string temp;
-    fstream file1;
-    fstream file2;
-
-    //openning txt file again to start at the top
-    file1.open("finalp1.txt");
-    file2.open("finalp2.txt");
-
-    //write out its contents of h5.txt
-    cout << "\nfinalp1.txt\n";
-    while (!file1.eof())
-    {
-        getline(file1, temp);
-        cout << temp << endl;
-    }
-
-    //write out its contents of newh5.txt
-    cout << "\nfinalp2.txt\n";
-    while (!file2.eof())
-    {
-        getline(file2, temp);
-        cout << temp << endl;
-    }
-
-    //close the files we used
-    file1.close();
-    file2.close();
-} */
