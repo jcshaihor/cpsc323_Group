@@ -3,7 +3,7 @@
 		of a given expression//
 	var
 	  // declare variables
-	  p1 ,		p2q, 	pr	:integer ;
+	  p1 ,		p2q, 	pr	: integer ;
 	begin
 		//initialize variables
 		   p1			= 3 ;
