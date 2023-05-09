@@ -338,9 +338,10 @@ bool traceInput(ofstream& stackFile, ifstream& tokenFile)
         }
         else if (top == 'r' && checkRev2) 
         {
+            tokenFile >> input;
             for (int x = 2; x >= 0; x--)
             {
-                if (top != RESERVED2[x])
+                if (input[x] != RESERVED2[x])
                 {
                     errorCheck(2);
                 }   
@@ -353,14 +354,14 @@ bool traceInput(ofstream& stackFile, ifstream& tokenFile)
             toRead = true;
             checkRev2 = false;
             stackFile << "Pop: " << top << endl;
-            tokenFile >> input;
             aStack.pop();
         }
         else if (top == 'n' && checkRev3)
         {
+            tokenFile >> input;
             for (int x = 4; x >= 0; x--)
             {
-                if (top != RESERVED3[x])
+                if (input[x] != RESERVED3[x])
                 {
                     errorCheck(3);
                 }
@@ -373,14 +374,13 @@ bool traceInput(ofstream& stackFile, ifstream& tokenFile)
             toRead = true;
             checkRev3 = false;
             stackFile << "Pop: " << top << endl;            
-            tokenFile >> input;
             aStack.pop();
         }
         else if (top == '.' && checkRev4)
         {
             for (int x = 3; x >= 0; x--)
             {
-                if (top != RESERVED4[x])
+                if (input[x] != RESERVED4[x])
                 {
                     errorCheck(4);
                 }
@@ -390,16 +390,13 @@ bool traceInput(ofstream& stackFile, ifstream& tokenFile)
             }
             stackFile << "\n\nPop: end." << endl;
             stackFile << "Match with the input string: end.\n\n";
-            toRead = true;
             checkRev4 = false;
-            stackFile << "Pop: " << top << endl;
-            aStack.pop();
         }
         else if (top == 'r' && checkRev5)
         {
             for (int x = 6; x >= 0; x--)
             {
-                if (top != RESERVED5[x])
+                if (input[x] != RESERVED5[x])
                 {
                     errorCheck(5);
                 }
@@ -418,7 +415,7 @@ bool traceInput(ofstream& stackFile, ifstream& tokenFile)
         {
             for (int x = 6; x >= 0; x--)
             {
-                if (top != RESERVED6[x])
+                if (input[x] != RESERVED6[x])
                 {
                     errorCheck(6);
                 }
@@ -526,7 +523,7 @@ bool traceInput(ofstream& stackFile, ifstream& tokenFile)
                                 aStack.push(prod[z-x]);
                                 j--;
                             }
-                            stackFile << "Push: end., ";
+                            stackFile << "Push: end.\n";
                             checkRev4 = true;
                         }
                         else if (prod[j] == 'r' && prod[j-2] == 'g')
@@ -584,6 +581,17 @@ bool traceInput(ofstream& stackFile, ifstream& tokenFile)
         }
             
     }
+    
+    if (input != RESERVED6)
+    {
+        for (int x = 3; x >= 0; x--)
+        {
+            if (input[x] != RESERVED4[x])
+            {
+                errorCheck(4);
+            }
+        }
+    }
     stackFile << "\n" << input << " is accepted." << endl;
     return true;
 
@@ -629,10 +637,12 @@ int main()
     bool result = true;
     ifstream tokenFile;
     ofstream stackFile;
+    ofstream errorFile;
 
     // openning our targeted txt file
     tokenFile.open("finalp2.txt");
     stackFile.open("stack.txt");
+    errorFile.open("error.txt");
 
     // loop for as long as we have not reached the end of file
     while (!tokenFile.eof() && result)
@@ -642,6 +652,7 @@ int main()
 
     if (result)
     {
+        errorFile << "No errors found!\n";
         cout << "*** Your program was ACCEPTED! ***\n";
     }
     else
@@ -653,6 +664,7 @@ int main()
 
     tokenFile.close();
     stackFile.close();
+    errorFile.close();
     return 0;
     
 }
