@@ -451,7 +451,7 @@ bool traceInput(ofstream& stackFile, ifstream& tokenFile)
             aStack.pop();   
         }
 
-        if(i >= (input.length()))
+        if (i >= (input.length()))
         {
             i = 0;
             tokenFile >> input;
@@ -465,6 +465,7 @@ bool traceInput(ofstream& stackFile, ifstream& tokenFile)
             toRead = false;
             stackFile << "Input string : " << input << endl;
         }
+
         //If a string has matched, move index i to next char, print message matched
         if (top == token) 
         {
@@ -572,9 +573,28 @@ bool traceInput(ofstream& stackFile, ifstream& tokenFile)
                 top = aStack.top();
             }
         }
-        //If the go to a blank, then rejected
+        // if it is not on the parsing table, then it is rejected
         else 
         {
+            // before we reject check to see if it is a syntax error 
+            if (top == ';' || top == 'X' || top == 'Q' || top == 'R' || top == 'Y') 
+            {
+                errorCheck(7);
+            }
+            if (top == ',') 
+            {
+                errorCheck(8);
+            }
+            if (top == '(' || top == 'O') 
+            {
+                errorCheck(9);
+            }
+            if (top == ')') 
+            {
+                errorCheck(0);
+            }
+
+            // the file was not traceable therefore reject
             stackFile << "\n" << input << " is rejected." << endl;
             return false;
 
@@ -582,6 +602,7 @@ bool traceInput(ofstream& stackFile, ifstream& tokenFile)
             
     }
     
+    // this is a check to see if end. reserved word is there
     if (input != RESERVED6)
     {
         for (int x = 3; x >= 0; x--)
@@ -592,11 +613,14 @@ bool traceInput(ofstream& stackFile, ifstream& tokenFile)
             }
         }
     }
+
+    // reached end of file without any mistakes
     stackFile << "\n" << input << " is accepted." << endl;
     return true;
 
 }
 
+// will output a certain error code depending on what we send it
 void errorCheck (int errorCode)
 {
     ofstream errorFile;
@@ -604,23 +628,45 @@ void errorCheck (int errorCode)
 
     switch (errorCode)
     {
+    // program check
     case 1:
         errorFile << "program\tis expected(is missing or is spelled incorrectly)\n";
         break;
+    // var check
     case 2:
         errorFile << "var\tis expected(is missing or is spelled incorrectly)\n";
         break;
+    // begin check
     case 3:
         errorFile << "begin\tis expected(is missing or is spelled incorrectly)\n";
         break;
+    // end. check
     case 4:
         errorFile << "end.\tis expected(is missing or is spelled incorrectly)\n";
         break;
+    // integer check
     case 5:
         errorFile << "integer\tis expected(is missing or is spelled incorrectly)\n";
         break;
+    // display check
     case 6:
         errorFile << "display\tis expected(is missing or is spelled incorrectly)\n";
+        break;
+    // ; check
+    case 7:
+        errorFile << ";\tis expected(or missing)\n";
+        break;
+    // , check
+    case 8:
+        errorFile << ",\tis expected(or missing)\n";
+        break;
+    // ( check
+    case 9:
+        errorFile << "(\tis expected(or missing)\n";
+        break;
+    // ) check
+    case 0:
+        errorFile << ")\tis expected(or missing)\n";
         break;
     default:
         break;
