@@ -15,6 +15,9 @@
 
 using namespace std;
 
+// function prototypes
+void errorCheck(int errorCode);
+
 // reserved words
 const string RESERVED1 = "program";
 const string RESERVED2 = "var";
@@ -295,6 +298,7 @@ bool traceInput(ofstream& stackFile, ifstream& tokenFile)
     bool checkRev5 = false;
     bool checkRev6 = false;
     bool checkRev7 = false;
+    int check = 0;
     string input;
     bool toRead = true;
     stack<char> aStack;
@@ -315,8 +319,12 @@ bool traceInput(ofstream& stackFile, ifstream& tokenFile)
         char top = aStack.top(); 
         if (top == 'm' && checkRev1)
         {
-            for (int x = 0; x < 7; x++)
+            for (int x = 6; x >= 0; x--)
             {
+                if (input[x] != RESERVED1[x])
+                {
+                    errorCheck(1);
+                }
                 aStack.pop();
                 top = aStack.top();
                 ++i;
@@ -330,8 +338,12 @@ bool traceInput(ofstream& stackFile, ifstream& tokenFile)
         }
         else if (top == 'r' && checkRev2) 
         {
-            for (int x = 0; x < 3; x++)
+            for (int x = 2; x >= 0; x--)
             {
+                if (top != RESERVED2[x])
+                {
+                    errorCheck(2);
+                }   
                 aStack.pop();
                 top = aStack.top();
                 ++i;
@@ -346,8 +358,12 @@ bool traceInput(ofstream& stackFile, ifstream& tokenFile)
         }
         else if (top == 'n' && checkRev3)
         {
-            for (int x = 0; x < 5; x++)
+            for (int x = 4; x >= 0; x--)
             {
+                if (top != RESERVED3[x])
+                {
+                    errorCheck(3);
+                }
                 aStack.pop();
                 top = aStack.top();
                 ++i;
@@ -362,8 +378,12 @@ bool traceInput(ofstream& stackFile, ifstream& tokenFile)
         }
         else if (top == '.' && checkRev4)
         {
-            for (int x = 0; x < 4; x++)
+            for (int x = 3; x >= 0; x--)
             {
+                if (top != RESERVED4[x])
+                {
+                    errorCheck(4);
+                }
                 aStack.pop();
                 top = aStack.top();
                 ++i;
@@ -377,8 +397,12 @@ bool traceInput(ofstream& stackFile, ifstream& tokenFile)
         }
         else if (top == 'r' && checkRev5)
         {
-            for (int x = 0; x < 7; x++)
+            for (int x = 6; x >= 0; x--)
             {
+                if (top != RESERVED5[x])
+                {
+                    errorCheck(5);
+                }
                 aStack.pop();
                 top = aStack.top();
                 ++i;
@@ -392,8 +416,12 @@ bool traceInput(ofstream& stackFile, ifstream& tokenFile)
         }
         else if (top == 'y' && checkRev6)
         {
-            for (int x = 0; x < 7; x++)
+            for (int x = 6; x >= 0; x--)
             {
+                if (top != RESERVED6[x])
+                {
+                    errorCheck(6);
+                }
                 aStack.pop();
                 top = aStack.top();
                 ++i;
@@ -407,7 +435,7 @@ bool traceInput(ofstream& stackFile, ifstream& tokenFile)
         }
         else if (top == '=' && checkRev7)
         {
-            for (int x = 0; x < 7; x++)
+            for (int x = 7; x > 0; x--)
             {
                 aStack.pop();
                 top = aStack.top();
@@ -552,6 +580,7 @@ bool traceInput(ofstream& stackFile, ifstream& tokenFile)
         {
             stackFile << "\n" << input << " is rejected." << endl;
             return false;
+
         }
             
     }
@@ -560,8 +589,44 @@ bool traceInput(ofstream& stackFile, ifstream& tokenFile)
 
 }
 
+void errorCheck (int errorCode)
+{
+    ofstream errorFile;
+    errorFile.open("error.txt");
+
+    switch (errorCode)
+    {
+    case 1:
+        errorFile << "program\tis expected(is missing or is spelled incorrectly)\n";
+        break;
+    case 2:
+        errorFile << "var\tis expected(is missing or is spelled incorrectly)\n";
+        break;
+    case 3:
+        errorFile << "begin\tis expected(is missing or is spelled incorrectly)\n";
+        break;
+    case 4:
+        errorFile << "end.\tis expected(is missing or is spelled incorrectly)\n";
+        break;
+    case 5:
+        errorFile << "integer\tis expected(is missing or is spelled incorrectly)\n";
+        break;
+    case 6:
+        errorFile << "display\tis expected(is missing or is spelled incorrectly)\n";
+        break;
+    default:
+        break;
+    }
+    
+    errorFile.close();
+
+    cout << "Something went wrong check the error.txt\n";
+    exit(EXIT_FAILURE);
+}
+
 int main() 
 {
+    bool result = true;
     ifstream tokenFile;
     ofstream stackFile;
 
@@ -570,10 +635,21 @@ int main()
     stackFile.open("stack.txt");
 
     // loop for as long as we have not reached the end of file
-    while (!tokenFile.eof())
+    while (!tokenFile.eof() && result)
     {
-    traceInput(stackFile,tokenFile);
+    result = traceInput(stackFile,tokenFile);
     }
+
+    if (result)
+    {
+        cout << "*** Your program was ACCEPTED! ***\n";
+    }
+    else
+    {
+        cout << "*** Your program was REJECTED! ***\n";
+        cout << "Check your error.txt file to see what went wrong\n";
+    }
+    
 
     tokenFile.close();
     stackFile.close();
