@@ -24,7 +24,7 @@ const string RESERVED5 = "integer";
 const string RESERVED6 = "display";
 
 // Define the grammar productions as strings
-const string PProduction = "program I; var B begin G";
+const string PProduction = "program I; var B begin G end.";
 const string IProduction = "LX";
 const string XProduction = "MX";
 const string MProductionDigit = "D";
@@ -42,7 +42,7 @@ const string OProduction = "(H";
 const string HProductionInteger = "I);";
 const string HProductionValue = "\"value=\", I);";
 const string AProduction = "I=E;";
-const string EProduction = "TQ;";
+const string EProduction = "TQ";
 const string QProductionPlus = "+TQ";
 const string QProductionMinus = "-TQ";
 const string TProduction = "FR";
@@ -193,6 +193,8 @@ map<pair<char, char>, string> table =
     {{'T', '+'}, TProduction},
     {{'T', '-'}, TProduction},
     {{'R', ')'}, Lambda},
+    {{'R', '+'}, Lambda},
+    {{'R', '-'}, Lambda},
     {{'R', '*'}, RProductionMulti},
     {{'R', '/'}, RProductionDiv},
     {{'R', ';'}, Lambda},
@@ -241,18 +243,18 @@ map<pair<char, char>, string> table =
     {{'Y', '+'}, Lambda},
     {{'Y', '-'}, Lambda},
     {{'Y', ';'}, Lambda},
-    {{'N', '0'}, Lambda},
-    {{'N', '1'}, Lambda},
-    {{'N', '2'}, Lambda},
-    {{'N', '3'}, Lambda},
-    {{'N', '4'}, Lambda},
-    {{'N', '5'}, Lambda},
-    {{'N', '6'}, Lambda},
-    {{'N', '7'}, Lambda},
-    {{'N', '8'}, Lambda},
-    {{'N', '9'}, Lambda},
-    {{'N', '+'}, VProductionPos},
-    {{'N', '-'}, VProductionNeg},
+    {{'V', '0'}, Lambda},
+    {{'V', '1'}, Lambda},
+    {{'V', '2'}, Lambda},
+    {{'V', '3'}, Lambda},
+    {{'V', '4'}, Lambda},
+    {{'V', '5'}, Lambda},
+    {{'V', '6'}, Lambda},
+    {{'V', '7'}, Lambda},
+    {{'V', '8'}, Lambda},
+    {{'V', '9'}, Lambda},
+    {{'V', '+'}, VProductionPos},
+    {{'V', '-'}, VProductionNeg},
     {{'D', '0'}, DProductionZero},
     {{'D', '1'}, DProductionOne},
     {{'D', '2'}, DProductionTwo},
@@ -292,10 +294,10 @@ bool traceInput(ofstream& stackFile, ifstream& tokenFile)
     bool checkRev4 = false;
     bool checkRev5 = false;
     bool checkRev6 = false;
+    bool checkRev7 = false;
     string input;
     bool toRead = true;
     stack<char> aStack;
-    stack<string> bStack;
     char token;
     aStack.push('$');
     aStack.push('P');
@@ -354,8 +356,8 @@ bool traceInput(ofstream& stackFile, ifstream& tokenFile)
             stackFile << "Match with the input string: begin\n\n";
             toRead = true;
             checkRev3 = false;
-            stackFile << "Pop: " << top << endl;
-            //tokenFile >> input;
+            stackFile << "Pop: " << top << endl;            
+            tokenFile >> input;
             aStack.pop();
         }
         else if (top == '.' && checkRev4)
@@ -371,7 +373,7 @@ bool traceInput(ofstream& stackFile, ifstream& tokenFile)
             toRead = true;
             checkRev4 = false;
             stackFile << "Pop: " << top << endl;
-            tokenFile >> input;
+            aStack.pop();
         }
         else if (top == 'r' && checkRev5)
         {
@@ -383,9 +385,10 @@ bool traceInput(ofstream& stackFile, ifstream& tokenFile)
             }
             stackFile << "\n\nPop: integer" << endl;
             stackFile << "Match with the input string: integer\n\n";
-            //toRead = true;
+            toRead = true;
             checkRev5 = false;
             stackFile << "Pop: " << top << endl;
+            aStack.pop();
         }
         else if (top == 'y' && checkRev6)
         {
@@ -396,11 +399,26 @@ bool traceInput(ofstream& stackFile, ifstream& tokenFile)
                 ++i;
             }
             stackFile << "\n\nPop: display" << endl;
-            stackFile << "Match with the input string: display" << endl;
+            stackFile << "Match with the input string: display\n\n" << endl;
             toRead = true;
             checkRev6 = false;
             stackFile << "Pop: " << top << endl;
-            tokenFile >> input;
+            aStack.pop();
+        }
+        else if (top == '=' && checkRev7)
+        {
+            for (int x = 0; x < 7; x++)
+            {
+                aStack.pop();
+                top = aStack.top();
+                ++i;
+            }
+            stackFile << "\n\nPop: \"value=\"" << endl;
+            stackFile << "Match with the input string: \"value=\n\n" << endl;
+            toRead = true;
+            checkRev7 = false;
+            stackFile << "Pop: " << top << endl;
+            aStack.pop();
         }
         else
         {
@@ -511,6 +529,7 @@ bool traceInput(ofstream& stackFile, ifstream& tokenFile)
                                 j--;
                             }
                             stackFile << "Push: \"value=\", ";
+                            checkRev7 = true;
                         }
                         else
                         {
